@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pokemon Drop! 🧺</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Back to hub -->
+  <a href="../" id="hub-link" title="All Games">🏠</a>
+
+  <!-- START SCREEN -->
+  <div id="start-screen" class="screen active">
+    <div class="start-content">
+      <h1 class="title">🧺 Pokemon Drop!</h1>
+      <div class="mascot">⬇️</div>
+      <p class="subtitle">Catch the falling Pokemon!<br>Don't let them hit the ground!</p>
+      <div class="controls-hint">
+        <span>🖱️ Mouse / ← → Keys</span>
+        <span>👆 Swipe on mobile</span>
+      </div>
+      <button id="start-btn" class="big-btn">▶ Play!</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div id="hud">
+      <div id="score-box">⭐ <span id="score">0</span></div>
+      <div id="lives-box"><span id="lives-display">❤️❤️❤️</span></div>
+      <div id="level-box">Lv <span id="level">1</span></div>
+    </div>
+    <canvas id="game-canvas"></canvas>
+    <div id="mobile-controls">
+      <button id="btn-left" class="ctrl-btn">◀</button>
+      <button id="btn-right" class="ctrl-btn">▶</button>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div id="result-screen" class="screen">
+    <div class="result-content">
+      <h2 id="result-title"></h2>
+      <div id="result-stars"></div>
+      <p id="result-msg"></p>
+      <div id="result-stats">
+        <div class="stat"><span class="stat-val" id="stat-score">0</span><span class="stat-label">Score</span></div>
+        <div class="stat"><span class="stat-val" id="stat-caught">0</span><span class="stat-label">Caught</span></div>
+        <div class="stat"><span class="stat-val" id="stat-missed">0</span><span class="stat-label">Missed</span></div>
+      </div>
+      <button id="play-again-btn" class="big-btn">🔄 Play Again!</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
