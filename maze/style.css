@@ -1,0 +1,32 @@
+@import url('../shared.css');
+
+/* ===== D-Pad ===== */
+#dpad {
+  display: none;
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  right: 20px;
+  z-index: 200;
+}
+#dpad-inner {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.dpad-row { display: flex; align-items: center; gap: 4px; }
+.dpad-btn {
+  width: 56px; height: 56px;
+  font-size: 1.2rem;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 12px; color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s;
+}
+.dpad-btn:active { background: rgba(255,255,255,0.35); }
+.dpad-center {
+  width: 56px; height: 56px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+}
+
+@media (pointer: coarse) { #dpad { display: block; } }

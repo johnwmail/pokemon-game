@@ -1,0 +1,8 @@
+@import url('../shared.css');
+
+/* ===== Fishing sky/water split ===== */
+#sky-label, #water-label {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  font-size: 0.8rem; color: rgba(255,255,255,0.35);
+  pointer-events: none; z-index: 2; letter-spacing: 2px;
+}
