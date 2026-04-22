@@ -60,10 +60,14 @@ function spawnFood() {
   const dur = Math.max(2, 6 - level * 0.5);
   food.style.animationDuration = `${dur}s`;
 
-  food.addEventListener('pointerdown', (e) => {
+  food.addEventListener('mousedown', (e) => {
     e.preventDefault();
     feedPokemon(p.food, food);
   });
+  food.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    feedPokemon(p.food, food);
+  }, {passive: false});
 
   gameArea.appendChild(food);
   foods.push(food);
