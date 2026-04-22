@@ -19,9 +19,6 @@ A collection of fun Pokemon browser games for kids (ages 5–8), built with vani
 | 7 | [Pokemon Match!](match/) | Flip the cards and find the matching Pokemon pairs | Mouse / Touch | 60s |
 | 8 | [Pokemon Feed!](feed/) | Tap the falling food to feed the matching Pokemon | Mouse / Touch | 60s |
 | 9 | [Pokemon Jump!](jump/) | Run and jump over obstacles to collect points | Spacebar · Tap | 60s |
-| 7 | [Pokemon Match!](match/) | Flip the cards and find the matching Pokemon pairs | Mouse / Touch | 60s |
-| 8 | [Pokemon Feed!](feed/) | Tap the falling food to feed the matching Pokemon | Mouse / Touch | 60s |
-| 9 | [Pokemon Jump!](jump/) | Run and jump over obstacles to collect points | Spacebar · Tap | 60s |
 
 ---
 
