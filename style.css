@@ -1,0 +1,258 @@
+/* ===== Reset ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ===== Base ===== */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+  min-height: 100vh;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
+}
+
+/* ===== Stars background ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 75% 60%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 20% 80%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 70%, rgba(255,255,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 65% 85%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 35%, rgba(255,255,255,0.4) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== Header ===== */
+header {
+  text-align: center;
+  padding: 48px 20px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  font-size: clamp(2rem, 7vw, 3.5rem);
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 0 30px rgba(255,215,0,0.5), 3px 3px 0 #c00;
+  letter-spacing: 2px;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.tagline {
+  font-size: clamp(1rem, 3vw, 1.3rem);
+  color: #a8d8ea;
+  margin-top: 10px;
+  opacity: 0.85;
+}
+
+/* ===== Game Grid ===== */
+#game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 16px 24px 48px;
+  width: 100%;
+  max-width: 1100px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== Game Card ===== */
+.game-card {
+  background: rgba(255,255,255,0.06);
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  animation: card-in 0.4s ease both;
+}
+
+.game-card:not(.coming-soon):hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: #FFD700;
+  box-shadow: 0 16px 40px rgba(255,215,0,0.2);
+}
+
+.game-card:not(.coming-soon):active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.coming-soon {
+  opacity: 0.55;
+  cursor: default;
+  filter: grayscale(0.3);
+}
+
+/* Shimmer effect on playable cards */
+.game-card:not(.coming-soon)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+  border-radius: 24px;
+}
+
+/* ===== Card Elements ===== */
+.card-icon {
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  animation: bounce 2s ease-in-out infinite alternate;
+}
+
+.card-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.card-badge.new {
+  background: #e50000;
+  color: white;
+  box-shadow: 0 2px 8px rgba(229,0,0,0.5);
+}
+
+.card-badge.soon {
+  background: rgba(255,255,255,0.15);
+  color: #aaa;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.card-title {
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
+  font-weight: 800;
+  color: #FFD700;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.5);
+}
+
+.card-desc {
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  color: #c8d8e8;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.card-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card-tags span {
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 3px 10px;
+  color: #a8d8ea;
+}
+
+.card-btn {
+  margin-top: 4px;
+  font-size: 1rem;
+  font-weight: bold;
+  padding: 10px 32px;
+  border-radius: 50px;
+  background: linear-gradient(145deg, #e50000, #ff6b6b);
+  color: white;
+  box-shadow: 0 4px 0 #990000;
+  transition: box-shadow 0.1s, transform 0.1s;
+  letter-spacing: 0.5px;
+}
+
+.card-btn.disabled {
+  background: rgba(255,255,255,0.1);
+  box-shadow: none;
+  color: #888;
+}
+
+.game-card:not(.coming-soon):hover .card-btn {
+  box-shadow: 0 6px 0 #990000;
+}
+
+/* ===== Footer ===== */
+footer {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: auto;
+}
+
+footer a {
+  color: #a8d8ea;
+  text-decoration: none;
+}
+footer a:hover { text-decoration: underline; }
+
+/* ===== Keyframes ===== */
+@keyframes glow {
+  from { text-shadow: 0 0 20px rgba(255,215,0,0.3), 3px 3px 0 #c00; }
+  to   { text-shadow: 0 0 40px rgba(255,215,0,0.8), 3px 3px 0 #c00; }
+}
+
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 400px) {
+  #game-grid { padding: 12px 16px 40px; gap: 16px; }
+  .game-card { padding: 24px 16px 20px; }
+}
+
+/* Disable hover effects on touch */
+@media (hover: none) {
+  .game-card:not(.coming-soon):hover {
+    transform: none;
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: none;
+  }
+  .game-card:not(.coming-soon):active {
+    transform: scale(0.97);
+    border-color: #FFD700;
+  }
+}

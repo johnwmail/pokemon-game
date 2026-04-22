@@ -1,0 +1,327 @@
+/* ===== Hub link ===== */
+#hub-link {
+  position: fixed;
+  top: 12px;
+  left: 16px;
+  font-size: 1.4rem;
+  text-decoration: none;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  transition: background 0.2s;
+}
+#hub-link:hover { background: rgba(255,255,255,0.3); }
+
+/* ===== Reset & Base ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  min-height: 100vh;
+  min-height: -webkit-fill-available; /* iOS Safari 100vh fix */
+  overflow: hidden;
+  cursor: none;
+  user-select: none;
+  touch-action: none; /* prevent scroll/zoom during game */
+}
+
+/* ===== Screens ===== */
+.screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  justify-content: center;
+  align-items: center;
+}
+.screen.active { display: flex; }
+
+/* ===== Start Screen ===== */
+.start-content {
+  text-align: center;
+  animation: pop-in 0.5s ease;
+}
+
+.title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: #FFD700;
+  text-shadow: 0 0 20px #FFD700, 3px 3px 0 #e50000;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+
+.mascot {
+  font-size: 6rem;
+  animation: bounce 1s infinite alternate;
+  margin: 20px 0;
+}
+
+.subtitle {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  color: #a8d8ea;
+  margin-bottom: 30px;
+}
+
+/* ===== Buttons ===== */
+.big-btn {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  padding: 16px 48px;
+  background: linear-gradient(145deg, #e50000, #ff6b6b);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 8px 0 #990000, 0 12px 20px rgba(0,0,0,0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.big-btn:hover { transform: translateY(-3px); box-shadow: 0 11px 0 #990000, 0 15px 25px rgba(0,0,0,0.4); }
+.big-btn:active { transform: translateY(4px); box-shadow: 0 4px 0 #990000; }
+
+/* Disable sticky hover on touch devices */
+@media (hover: none) {
+  .big-btn:hover { transform: none; box-shadow: 0 8px 0 #990000, 0 12px 20px rgba(0,0,0,0.4); }
+}
+
+/* ===== HUD ===== */
+#hud {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  gap: 10px;
+}
+
+#hud > div {
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: white;
+  font-weight: bold;
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 6px 16px;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+#score-box { color: #FFD700; border-color: #FFD700; }
+#caught-box { color: #7fff7f; border-color: #7fff7f; }
+#timer-box { color: #ff9999; border-color: #ff9999; }
+
+/* ===== Arena ===== */
+#arena {
+  position: fixed;
+  inset: 70px 0 0 0;
+  /* respect notch / gesture nav on iOS & Android */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  overflow: hidden;
+}
+
+/* ===== Pokemon sprites ===== */
+.pokemon {
+  position: absolute;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  cursor: none;
+  transition: transform 0.1s;
+  animation: float-in 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+  z-index: 10;
+  /* Enlarge tap target on touch without affecting visual size */
+  padding: 8px;
+  touch-action: none;
+}
+
+.pokemon:hover { transform: scale(1.15); }
+
+@media (hover: none) {
+  .pokemon:hover { transform: none; }
+}
+
+.pokemon.caught {
+  animation: catch-anim 0.5s ease forwards;
+  pointer-events: none;
+}
+
+/* ===== Pokeball cursor ===== */
+#pokeball-cursor {
+  position: fixed;
+  pointer-events: none;
+  font-size: 2rem;
+  transform: translate(-50%, -50%);
+  z-index: 999;
+  transition: transform 0.05s;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+/* ===== Catch effect ===== */
+.catch-burst {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.5rem;
+  animation: burst 0.6s ease forwards;
+  z-index: 50;
+}
+
+.score-popup {
+  position: absolute;
+  pointer-events: none;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 1px 1px 0 #000;
+  animation: score-rise 0.8s ease forwards;
+  z-index: 60;
+}
+
+/* ===== Level Banner ===== */
+#level-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 0 0 30px #FFD700, 3px 3px 0 #000;
+  z-index: 200;
+  animation: level-pop 1.2s ease forwards;
+  background: rgba(0,0,0,0.6);
+  padding: 20px 40px;
+  border-radius: 20px;
+  border: 3px solid #FFD700;
+}
+
+.hidden { display: none !important; }
+
+/* ===== Result Screen ===== */
+.result-content {
+  text-align: center;
+  max-width: min(90vw, 500px);
+  animation: pop-in 0.5s ease;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 24px;
+  padding: 30px 24px;
+  backdrop-filter: blur(10px);
+}
+
+#result-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #FFD700;
+  text-shadow: 2px 2px 0 #000;
+  margin-bottom: 10px;
+}
+
+#result-stars {
+  font-size: clamp(2rem, 6vw, 3rem);
+  margin: 10px 0;
+  letter-spacing: 4px;
+}
+
+#result-msg {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: #a8d8ea;
+  margin-bottom: 16px;
+}
+
+#pokedex {
+  margin: 16px 0;
+}
+#pokedex h3 {
+  color: #FFD700;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+#caught-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.caught-badge {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  animation: pop-in 0.3s ease;
+}
+
+/* ===== Clouds / BG decorations ===== */
+.bg-star {
+  position: fixed;
+  pointer-events: none;
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.4);
+  animation: twinkle 2s infinite alternate;
+}
+
+/* ===== Keyframes ===== */
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-20px); }
+}
+
+@keyframes float-in {
+  from { transform: scale(0) rotate(-20deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes catch-anim {
+  0%   { transform: scale(1); opacity: 1; }
+  40%  { transform: scale(1.6) rotate(10deg); opacity: 0.8; }
+  100% { transform: scale(0) rotate(30deg); opacity: 0; }
+}
+
+@keyframes burst {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  60%  { transform: translate(-50%, -90%) scale(1.3); opacity: 1; }
+  100% { transform: translate(-50%, -130%) scale(0.8); opacity: 0; }
+}
+
+@keyframes score-rise {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+  100% { transform: translate(-50%, -200%) scale(1.2); opacity: 0; }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+@keyframes level-pop {
+  0%   { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20%  { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  70%  { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+}
+
+@keyframes twinkle {
+  from { opacity: 0.2; }
+  to   { opacity: 0.8; }
+}
+
+@keyframes wobble {
+  0%,100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-15deg); }
+  75%      { transform: rotate(15deg); }
+}
