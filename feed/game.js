@@ -14,7 +14,7 @@ const timerEl      = document.getElementById('timer');
 const gameArea     = document.getElementById('game-area');
 const pokeZone     = document.getElementById('pokemon-zone');
 
-let score, fed, timeLeft, gameRunning, level;
+let score = 0, fed = 0, timeLeft = 60, gameRunning = false, level = 1;
 let timerInterval, spawnInterval;
 let foods = [];
 let audioCtx = null;
