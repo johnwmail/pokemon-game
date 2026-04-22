@@ -109,6 +109,7 @@ document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('play-again-btn').addEventListener('click', startGame);
 
 function startGame() {
+  console.log("Starting game...");
   score = 0; fed = 0; timeLeft = 60; level = 1; gameRunning = true;
   timerEl.style.color = '';
   scoreEl.textContent = '0';
@@ -125,6 +126,7 @@ function startGame() {
 }
 
 function endGame() {
+  console.log("Ending game...");
   gameRunning = false;
   clearInterval(timerInterval);
   clearTimeout(spawnInterval);
@@ -142,13 +144,18 @@ function endGame() {
 
 // Event Delegation for clicking food (more reliable than attaching to moving elements)
 function handleInteract(e) {
+  console.log("Interaction detected at:", e.clientX, e.clientY);
   if (!gameRunning) return;
   const foodEl = e.target.closest('.food-item');
   if (foodEl) {
+    console.log("Food clicked:", foodEl.textContent);
     e.preventDefault();
     feedPokemon(foodEl.textContent, foodEl);
   }
 }
 
 gameArea.addEventListener('mousedown', handleInteract);
-gameArea.addEventListener('touchstart', handleInteract, {passive: false});
+gameArea.addEventListener('touchstart', (e) => {
+  console.log("Touch detected");
+  handleInteract(e);
+}, {passive: false});
