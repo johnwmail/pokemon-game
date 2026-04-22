@@ -1,6 +1,6 @@
 @import url('../shared.css');
 
-#game-screen {
+#game-screen.active {
   display: flex;
   flex-direction: column;
 }
