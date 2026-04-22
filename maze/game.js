@@ -115,10 +115,10 @@ const MOVE_DELAY = 8; // frames between moves
 
 function tryMove(dr, dc) {
   const r = player.r, c = player.c;
-  if (dr === -1 && maze[r][c].top    && r > 0)       { player.r--; return true; }
-  if (dr ===  1 && maze[r][c].bottom && r < ROWS-1)  { player.r++; return true; }
-  if (dc === -1 && maze[r][c].left   && c > 0)       { player.c--; return true; }
-  if (dc ===  1 && maze[r][c].right  && c < COLS-1)  { player.c++; return true; }
+  if (dr === -1 && !maze[r][c].top    && r > 0)       { player.r--; return true; }
+  if (dr ===  1 && !maze[r][c].bottom && r < ROWS-1)  { player.r++; return true; }
+  if (dc === -1 && !maze[r][c].left   && c > 0)       { player.c--; return true; }
+  if (dc ===  1 && !maze[r][c].right  && c < COLS-1)  { player.c++; return true; }
   return false;
 }
 
@@ -170,10 +170,10 @@ function update() {
   moveTimer++;
   if (moveTimer >= MOVE_DELAY) {
     let moved = false;
-    if (keys['ArrowUp']    || keys['w'] || keys['W']) moved = tryMove(-1,  0);
-    if (keys['ArrowDown']  || keys['s'] || keys['S']) moved = tryMove( 1,  0);
-    if (keys['ArrowLeft']  || keys['a'] || keys['A']) moved = tryMove( 0, -1);
-    if (keys['ArrowRight'] || keys['d'] || keys['D']) moved = tryMove( 0,  1);
+    if      (keys['ArrowUp']    || keys['w'] || keys['W']) moved = tryMove(-1,  0);
+    else if (keys['ArrowDown']  || keys['s'] || keys['S']) moved = tryMove( 1,  0);
+    else if (keys['ArrowLeft']  || keys['a'] || keys['A']) moved = tryMove( 0, -1);
+    else if (keys['ArrowRight'] || keys['d'] || keys['D']) moved = tryMove( 0,  1);
     if (moved) moveTimer = 0;
   }
 
