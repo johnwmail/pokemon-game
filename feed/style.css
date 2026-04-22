@@ -1,0 +1,48 @@
+@import url('../shared.css');
+
+#game-screen {
+  display: flex;
+  flex-direction: column;
+}
+
+#game-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #bbdefb;
+}
+
+#pokemon-zone {
+  height: 120px;
+  background: #81c784;
+  border-top: 4px solid #388e3c;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding-bottom: 20px;
+  z-index: 10;
+}
+
+.hungry-poke {
+  font-size: 3rem;
+  transition: transform 0.2s;
+  user-select: none;
+}
+
+.hungry-poke.eating {
+  transform: scale(1.3) translateY(-20px);
+}
+
+.food-item {
+  position: absolute;
+  font-size: 2.5rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  from { top: -50px; }
+  to { top: 100%; }
+}

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Pokemon Jump! 🏃</title>
+  <link rel="stylesheet" href="../shared.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a href="../" id="hub-link" title="All Games">🏠</a>
+
+  <div id="start-screen" class="screen active">
+    <div class="start-content">
+      <h1 class="title">🏃 Pokemon Jump!</h1>
+      <div class="mascot">🏃</div>
+      <p class="subtitle">Run and jump over obstacles to collect points!</p>
+      <div class="controls-hint">
+        <span>👆 Tap or Spacebar to jump</span>
+      </div>
+      <button id="start-btn" class="big-btn">▶ Play!</button>
+    </div>
+  </div>
+
+  <div id="game-screen" class="screen">
+    <div id="hud">
+      <div id="score-box">⭐ <span id="score">0</span></div>
+      <div id="caught-box">🎯 <span id="caught">0</span> hits</div>
+      <div id="timer-box">⏱ <span id="timer">60</span>s</div>
+    </div>
+    <canvas id="game-canvas"></canvas>
+  </div>
+
+  <div id="result-screen" class="screen">
+    <div class="result-content">
+      <h2 id="result-title"></h2>
+      <div id="result-stars"></div>
+      <p id="result-msg"></p>
+      <div id="result-stats">
+        <div class="stat"><span class="stat-val" id="stat-score">0</span><span class="stat-label">Score</span></div>
+        <div class="stat"><span class="stat-val" id="stat-caught">0</span><span class="stat-label">Hits</span></div>
+      </div>
+      <button id="play-again-btn" class="big-btn">🔄 Play Again!</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -16,6 +16,12 @@ A collection of fun Pokemon browser games for kids (ages 5–8), built with vani
 | 4 | [Pokemon Fishing!](fishing/) | Cast a line to hook swimming Pokemon | Click · Space · Tap | 60s |
 | 5 | [Pokemon Herding!](herding/) | Draw a circle to herd Pokemon into the pen | Click drag / Touch drag | 60s |
 | 6 | [Pokemon Maze!](maze/) | Navigate a Pokeball through a maze to catch Pokemon | Arrow keys · WASD · D-pad | 90s |
+| 7 | [Pokemon Match!](match/) | Flip the cards and find the matching Pokemon pairs | Mouse / Touch | 60s |
+| 8 | [Pokemon Feed!](feed/) | Tap the falling food to feed the matching Pokemon | Mouse / Touch | 60s |
+| 9 | [Pokemon Jump!](jump/) | Run and jump over obstacles to collect points | Spacebar · Tap | 60s |
+| 7 | [Pokemon Match!](match/) | Flip the cards and find the matching Pokemon pairs | Mouse / Touch | 60s |
+| 8 | [Pokemon Feed!](feed/) | Tap the falling food to feed the matching Pokemon | Mouse / Touch | 60s |
+| 9 | [Pokemon Jump!](jump/) | Run and jump over obstacles to collect points | Spacebar · Tap | 60s |
 
 ---
 
@@ -61,6 +67,21 @@ A new maze is generated each game. Navigate your Pokeball 🔮 through corridors
 - **Mobile:** On-screen D-pad (bottom right)
 - Pokemon also move through the maze — intercept them!
 - 90 second round — Pokemon move faster at higher levels
+
+### 7. Pokemon Match! 🃏
+A memory card matching game where you flip cards to find Pokemon pairs.
+- **Desktop/Mobile:** Tap / Click to flip a card
+- Match all 6 pairs before the 60 second timer runs out
+
+### 8. Pokemon Feed! 🍎
+A sorting game where you tap falling food to feed the matching hungry Pokemon at the bottom.
+- **Desktop/Mobile:** Tap / Click the food as it falls
+- The game speeds up as you feed more Pokemon
+
+### 9. Pokemon Jump! 🏃
+An endless runner platformer where you jump over obstacles to survive.
+- **Desktop/Mobile:** Tap anywhere or press Spacebar to jump
+- Points increase the further you run without hitting a rock
 
 ---
 
