@@ -60,15 +60,6 @@ function spawnFood() {
   const dur = Math.max(2, 6 - level * 0.5);
   food.style.animationDuration = `${dur}s`;
 
-  food.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    feedPokemon(p.food, food);
-  });
-  food.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    feedPokemon(p.food, food);
-  }, {passive: false});
-
   gameArea.appendChild(food);
   foods.push(food);
 
@@ -148,3 +139,16 @@ function endGame() {
   
   showScreen(resultScreen);
 }
+
+// Event Delegation for clicking food (more reliable than attaching to moving elements)
+function handleInteract(e) {
+  if (!gameRunning) return;
+  const foodEl = e.target.closest('.food-item');
+  if (foodEl) {
+    e.preventDefault();
+    feedPokemon(foodEl.textContent, foodEl);
+  }
+}
+
+gameArea.addEventListener('mousedown', handleInteract);
+gameArea.addEventListener('touchstart', handleInteract, {passive: false});
