@@ -99,13 +99,14 @@ function checkForMatch() {
   const isMatch = firstCard.dataset.name === secondCard.dataset.name;
 
   if (isMatch) {
-    disableCards();
     const pts = parseInt(firstCard.dataset.points);
     score += pts;
     pairs++;
     scoreEl.textContent = score;
     caughtEl.textContent = pairs;
     playBeep(600 + pts*10, 'sine', 0.3);
+    
+    disableCards();
     
     if (pairs === 6) {
       setTimeout(endGame, 500); // Win condition
