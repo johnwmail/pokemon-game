@@ -209,18 +209,23 @@ function draw() {
   for (let i = particles2.length - 1; i >= 0; i--) {
     const p = particles2[i];
     p.life -= 0.03;
+    
+    if (p.life <= 0) {
+      particles2.splice(i, 1);
+      continue;
+    }
+
     if (p.type === 'text') {
       p.y += p.vy;
-      ctx.globalAlpha = p.life;
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
       ctx.font = 'bold 22px Segoe UI, Arial'; ctx.textAlign = 'center';
       ctx.fillStyle = p.color; ctx.fillText(p.text, p.x, p.y);
     } else {
       p.x += p.vx; p.y += p.vy; p.vy += 0.1;
-      ctx.globalAlpha = p.life;
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
       ctx.fillStyle = p.color;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(0, p.size * p.life), 0, Math.PI * 2); ctx.fill();
     }
-    if (p.life <= 0) particles2.splice(i, 1);
   }
   ctx.globalAlpha = 1;
 }
