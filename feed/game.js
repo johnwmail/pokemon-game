@@ -142,11 +142,20 @@ function endGame() {
   showScreen(resultScreen);
 }
 
-// Event Delegation for clicking food (more reliable than attaching to moving elements)
+// Event Delegation for clicking food
 function handleInteract(e) {
-  console.log("Interaction detected at:", e.clientX, e.clientY);
+  // Try to find the coordinates whether it's touch or mouse
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  
+  console.log("Interaction detected at:", clientX, clientY);
+  
   if (!gameRunning) return;
-  const foodEl = e.target.closest('.food-item');
+
+  // Use elementFromPoint to find exactly what was touched/clicked
+  const target = document.elementFromPoint(clientX, clientY);
+  const foodEl = target ? target.closest('.food-item') : null;
+
   if (foodEl) {
     console.log("Food clicked:", foodEl.textContent);
     e.preventDefault();
@@ -154,8 +163,8 @@ function handleInteract(e) {
   }
 }
 
-gameArea.addEventListener('mousedown', handleInteract);
-gameArea.addEventListener('touchstart', (e) => {
-  console.log("Touch detected");
+// Attach to window to ensure we catch the event regardless of layout blocking
+window.addEventListener('mousedown', handleInteract, true);
+window.addEventListener('touchstart', (e) => {
   handleInteract(e);
-}, {passive: false});
+}, {passive: false, capture: true});
