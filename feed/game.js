@@ -1,8 +1,8 @@
 // ===== Pokemon Feed =====
 const POKEMON = [
-  { emoji: '⚡', food: '🍎', color: '#ffeb3b' },
-  { emoji: '🔥', food: '🌶️', color: '#ff5722' },
-  { emoji: '💧', food: '🧊', color: '#03a9f4' }
+  { emoji: '⚡', food: '🍎' },
+  { emoji: '🔥', food: '🌶' },
+  { emoji: '💧', food: '🧊' },
 ];
 
 const startScreen  = document.getElementById('start-screen');
@@ -11,85 +11,160 @@ const resultScreen = document.getElementById('result-screen');
 const scoreEl      = document.getElementById('score');
 const caughtEl     = document.getElementById('caught');
 const timerEl      = document.getElementById('timer');
-const gameArea     = document.getElementById('game-area');
-const pokeZone     = document.getElementById('pokemon-zone');
+const canvas       = document.getElementById('game-canvas');
+const ctx          = canvas.getContext('2d');
 
 let score = 0, fed = 0, timeLeft = 60, gameRunning = false, level = 1;
-let timerInterval, spawnInterval;
+let timerInterval, rafId;
 let foods = [];
+let lastSpawn = 0;
 let audioCtx = null;
+
+const POKE_SIZE = 60;
+const FOOD_SIZE = 44;
+const POKE_Y_RATIO = 0.85;
+
+let pokemons = [];
+
+function resize() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  layoutPokemons();
+}
+
+function layoutPokemons() {
+  const n = POKEMON.length;
+  pokemons = POKEMON.map((p, i) => ({
+    ...p,
+    x: canvas.width * (i + 1) / (n + 1),
+    y: canvas.height * POKE_Y_RATIO,
+    eating: 0,
+  }));
+}
+
+window.addEventListener('resize', resize);
 
 function showScreen(s) {
   [startScreen, gameScreen, resultScreen].forEach(x => x.classList.remove('active'));
   s.classList.add('active');
 }
 
-function playBeep(freq, type='sine', dur=0.15) {
+function playBeep(freq, type = 'sine', dur = 0.15) {
   try {
-    if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    if (audioCtx.state==='suspended') audioCtx.resume();
-    const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
-    o.frequency.value=freq; o.type=type;
+    o.frequency.value = freq; o.type = type;
     g.gain.setValueAtTime(0.3, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
-    o.start(); o.stop(audioCtx.currentTime+dur);
-  } catch(e) {}
-}
-
-function buildPokemon() {
-  pokeZone.innerHTML = '';
-  POKEMON.forEach(p => {
-    const el = document.createElement('div');
-    el.classList.add('hungry-poke');
-    el.textContent = p.emoji;
-    el.dataset.food = p.food;
-    pokeZone.appendChild(el);
-  });
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
 }
 
 function spawnFood() {
-  if (!gameRunning) return;
   const p = POKEMON[Math.floor(Math.random() * POKEMON.length)];
-  const food = document.createElement('div');
-  food.classList.add('food-item');
-  food.textContent = p.food;
-  food.style.left = `${10 + Math.random() * 80}%`;
-  
-  // Animation duration depends on level
-  const dur = Math.max(2, 6 - level * 0.5);
-  food.style.animationDuration = `${dur}s`;
-
-  gameArea.appendChild(food);
-  foods.push(food);
-
-  setTimeout(() => {
-    if (food.parentNode) {
-      food.remove();
-      foods = foods.filter(f => f !== food);
-      playBeep(200, 'sawtooth', 0.2); // Missed
-    }
-  }, dur * 1000);
+  const speed = 80 + level * 20; // px per second
+  foods.push({
+    emoji: p.food,
+    matchEmoji: p.emoji,
+    x: canvas.width * (0.1 + Math.random() * 0.8),
+    y: -FOOD_SIZE,
+    speed,
+  });
 }
 
-function feedPokemon(foodType, foodEl) {
+let lastTime = 0;
+function gameLoop(ts) {
   if (!gameRunning) return;
-  foodEl.remove();
-  foods = foods.filter(f => f !== foodEl);
-  
-  const pokeEl = Array.from(pokeZone.children).find(el => el.dataset.food === foodType);
-  if (pokeEl) {
-    score += 10;
-    fed++;
-    level = Math.floor(fed / 10) + 1;
-    scoreEl.textContent = score;
-    caughtEl.textContent = fed;
-    
-    playBeep(500 + fed * 10, 'sine', 0.2);
-    pokeEl.classList.add('eating');
-    setTimeout(() => pokeEl.classList.remove('eating'), 300);
+  const dt = Math.min((ts - lastTime) / 1000, 0.1);
+  lastTime = ts;
+
+  // Spawn food
+  const spawnInterval = Math.max(600, 1800 - level * 150);
+  if (ts - lastSpawn > spawnInterval) {
+    spawnFood();
+    lastSpawn = ts;
+  }
+
+  // Update food positions
+  foods.forEach(f => { f.y += f.speed * dt; });
+  // Remove food that hit the bottom
+  foods = foods.filter(f => {
+    if (f.y > canvas.height + FOOD_SIZE) {
+      playBeep(200, 'sawtooth', 0.2);
+      return false;
+    }
+    return true;
+  });
+
+  draw();
+  rafId = requestAnimationFrame(gameLoop);
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw grass strip at bottom
+  ctx.fillStyle = '#81c784';
+  ctx.fillRect(0, canvas.height * POKE_Y_RATIO - 20, canvas.width, canvas.height);
+
+  // Draw pokemon
+  ctx.font = `${POKE_SIZE}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  pokemons.forEach(p => {
+    const scale = p.eating > 0 ? 1.3 : 1.0;
+    p.eating = Math.max(0, p.eating - 0.05);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.scale(scale, scale);
+    ctx.fillText(p.emoji, 0, 0);
+    ctx.restore();
+  });
+
+  // Draw falling food
+  ctx.font = `${FOOD_SIZE}px serif`;
+  foods.forEach(f => {
+    ctx.fillText(f.emoji, f.x, f.y);
+  });
+}
+
+function handleClick(cx, cy) {
+  if (!gameRunning) return;
+  // Check if any food item was clicked
+  for (let i = foods.length - 1; i >= 0; i--) {
+    const f = foods[i];
+    const dx = cx - f.x;
+    const dy = cy - f.y;
+    if (Math.sqrt(dx * dx + dy * dy) < FOOD_SIZE) {
+      // Find matching pokemon
+      const poke = pokemons.find(p => p.emoji === f.matchEmoji);
+      if (poke) {
+        score += 10;
+        fed++;
+        level = Math.floor(fed / 10) + 1;
+        scoreEl.textContent = score;
+        caughtEl.textContent = fed;
+        poke.eating = 1;
+        playBeep(500 + fed * 10, 'sine', 0.2);
+      }
+      foods.splice(i, 1);
+      return;
+    }
   }
 }
+
+canvas.addEventListener('mousedown', e => {
+  const r = canvas.getBoundingClientRect();
+  handleClick(e.clientX - r.left, e.clientY - r.top);
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  handleClick(t.clientX - r.left, t.clientY - r.top);
+}, { passive: false });
 
 function tick() {
   timeLeft--;
@@ -98,73 +173,35 @@ function tick() {
   if (timeLeft <= 0) endGame();
 }
 
-function loop() {
-  if (!gameRunning) return;
-  spawnFood();
-  const nextSpawn = Math.max(500, 2000 - level * 200);
-  spawnInterval = setTimeout(loop, nextSpawn);
-}
-
 document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('play-again-btn').addEventListener('click', startGame);
 
 function startGame() {
-  console.log("Starting game...");
   score = 0; fed = 0; timeLeft = 60; level = 1; gameRunning = true;
   timerEl.style.color = '';
   scoreEl.textContent = '0';
   caughtEl.textContent = '0';
   timerEl.textContent = '60';
-  gameArea.innerHTML = '';
   foods = [];
-  buildPokemon();
+  lastSpawn = 0;
+  lastTime = 0;
+  resize();
   showScreen(gameScreen);
   clearInterval(timerInterval);
-  clearTimeout(spawnInterval);
+  cancelAnimationFrame(rafId);
   timerInterval = setInterval(tick, 1000);
-  loop();
+  rafId = requestAnimationFrame(ts => { lastTime = ts; gameLoop(ts); });
 }
 
 function endGame() {
-  console.log("Ending game...");
   gameRunning = false;
   clearInterval(timerInterval);
-  clearTimeout(spawnInterval);
+  cancelAnimationFrame(rafId);
   const stars = fed >= 30 ? '⭐⭐⭐' : fed >= 15 ? '⭐⭐' : '⭐';
-  const msg = fed >= 30 ? "MASTER CHEF! 🏆" : "Yummy! 🌟";
-  
-  document.getElementById('result-title').textContent = `You fed ${fed} times!`;
+  document.getElementById('result-title').textContent = `You fed ${fed} Pokemon!`;
   document.getElementById('result-stars').textContent = stars;
-  document.getElementById('result-msg').textContent = msg;
+  document.getElementById('result-msg').textContent = fed >= 30 ? 'MASTER CHEF! 🏆' : 'Yummy! 🌟';
   document.getElementById('stat-score').textContent = score;
   document.getElementById('stat-caught').textContent = fed;
-  
   showScreen(resultScreen);
 }
-
-// Event Delegation for clicking food
-function handleInteract(e) {
-  // Try to find the coordinates whether it's touch or mouse
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  
-  console.log("Interaction detected at:", clientX, clientY);
-  
-  if (!gameRunning) return;
-
-  // Use elementFromPoint to find exactly what was touched/clicked
-  const target = document.elementFromPoint(clientX, clientY);
-  const foodEl = target ? target.closest('.food-item') : null;
-
-  if (foodEl) {
-    console.log("Food clicked:", foodEl.textContent);
-    e.preventDefault();
-    feedPokemon(foodEl.textContent, foodEl);
-  }
-}
-
-// Attach to window to ensure we catch the event regardless of layout blocking
-window.addEventListener('mousedown', handleInteract, true);
-window.addEventListener('touchstart', (e) => {
-  handleInteract(e);
-}, {passive: false, capture: true});

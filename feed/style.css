@@ -6,50 +6,11 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: #bbdefb;
 }
 
-#game-area {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-  background: #bbdefb;
-  touch-action: none;
-}
-
-#pokemon-zone {
-  height: 120px;
-  background: #81c784;
-  border-top: 4px solid #388e3c;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-  padding-bottom: 20px;
-  z-index: 10;
-}
-
-.hungry-poke {
-  font-size: 3rem;
-  transition: transform 0.2s;
-  user-select: none;
-}
-
-.hungry-poke.eating {
-  transform: scale(1.3) translateY(-20px);
-}
-
-.food-item {
-  position: absolute;
-  font-size: 3.5rem; /* Make it bigger so it's easier to click */
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  animation: fall linear forwards;
-  z-index: 20; /* Ensure it's on top */
-  pointer-events: auto !important; /* Force pointer events */
-}
-
-@keyframes fall {
-  from { top: -50px; }
-  to { top: 100%; }
+#game-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
 }
