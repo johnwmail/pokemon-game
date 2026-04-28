@@ -20,9 +20,12 @@ const timerEl = document.getElementById('timer');
 let score, hits, timeLeft, gameRunning, level;
 let animFrame, timerInterval;
 let audioCtx = null;
+let bestScore = parseInt(localStorage.getItem('jump-best') || '0');
 
 const player = { x: 100, y: 0, w: 40, h: 40, vy: 0, jump: -15, gravity: 0.8, isGrounded: false };
 let obstacles = [];
+let spawnTimer = 0;
+let spawnInterval = 90; // frames between spawns
 
 function showScreen(s) {
   [startScreen, gameScreen, resultScreen].forEach(x => x.classList.remove('active'));
@@ -52,19 +55,24 @@ function doJump() {
 }
 
 window.addEventListener('keydown', e => { if (e.code === 'Space') doJump(); });
-window.addEventListener('pointerdown', doJump);
+window.addEventListener('pointerdown', e => {
+  if (e.target.id !== 'jump-btn') doJump();
+});
+
+const jumpBtn = document.getElementById('jump-btn');
+if (jumpBtn) {
+  jumpBtn.addEventListener('pointerdown', e => { e.preventDefault(); doJump(); });
+}
 
 function spawnObstacle() {
-  if (Math.random() < 0.02 + level * 0.005) {
-    obstacles.push({
-      x: W,
-      y: H - 60,
-      w: 30,
-      h: 30,
-      passed: false,
-      emoji: '🪨'
-    });
-  }
+  obstacles.push({
+    x: W,
+    y: H - 60,
+    w: 30,
+    h: 30,
+    passed: false,
+    emoji: '🪨'
+  });
 }
 
 function update() {
@@ -79,7 +87,14 @@ function update() {
   }
   
   const speed = 5 + level * 1;
-  spawnObstacle();
+  
+  // Timer-based spawn (prevents clustering)
+  spawnTimer++;
+  if (spawnTimer >= spawnInterval) {
+    spawnTimer = 0;
+    spawnObstacle();
+    spawnInterval = Math.max(45, 90 - level * 5);
+  }
   
   for (let i = obstacles.length - 1; i >= 0; i--) {
     const obs = obstacles[i];
@@ -145,6 +160,8 @@ document.getElementById('play-again-btn').addEventListener('click', startGame);
 function startGame() {
   score = 0; hits = 0; timeLeft = 60; level = 1; gameRunning = true;
   obstacles = [];
+  spawnTimer = 0;
+  spawnInterval = 90;
   player.y = H - 60 - player.h;
   player.vy = 0;
   
@@ -165,6 +182,10 @@ function endGame() {
   gameRunning = false;
   clearInterval(timerInterval);
   cancelAnimationFrame(animFrame);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('jump-best', bestScore);
+  }
   
   const stars = hits === 0 ? '⭐⭐⭐' : hits < 5 ? '⭐⭐' : '⭐';
   const msg = hits === 0 ? "PERFECT RUN! 🏆" : "Good jumping! 🌟";
@@ -174,6 +195,7 @@ function endGame() {
   document.getElementById('result-msg').textContent = msg;
   document.getElementById('stat-score').textContent = score;
   document.getElementById('stat-caught').textContent = hits;
+  document.getElementById('stat-best').textContent = bestScore;
   
   showScreen(resultScreen);
 }

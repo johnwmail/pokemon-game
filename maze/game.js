@@ -29,6 +29,7 @@ window.addEventListener('resize', () => { resize(); });
 // ===== State =====
 let score, caught, timeLeft, level, gameRunning;
 let timerInterval, animFrame, keys = {};
+let bestScore = parseInt(localStorage.getItem('maze-best') || '0');
 
 // ===== DOM =====
 const startScreen  = document.getElementById('start-screen');
@@ -252,7 +253,7 @@ function draw() {
   // Player (Pokeball)
   const {x: px, y: py} = cellXY(player.r, player.c);
   ctx.font = `${fs}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText('🔮', px, py);
+  ctx.fillText('🎾', px, py);
 
   // Particles
   for (const p of particles) {
@@ -305,6 +306,10 @@ function startGame() {
 
 function endGame() {
   gameRunning=false; clearInterval(timerInterval); cancelAnimationFrame(animFrame);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('maze-best', bestScore);
+  }
   const stars = caught>=12?'⭐⭐⭐':caught>=6?'⭐⭐':caught>=2?'⭐':'';
   const msg   = caught<2  ? "Explore the maze! 💪"
               : caught<6  ? "Good maze runner! 🌟"
@@ -315,6 +320,7 @@ function endGame() {
   document.getElementById('result-msg').textContent=msg;
   document.getElementById('stat-score').textContent=score;
   document.getElementById('stat-caught').textContent=caught;
+  document.getElementById('stat-best').textContent=bestScore;
   showScreen(resultScreen);
 }
 

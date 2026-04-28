@@ -19,6 +19,7 @@ let timerInterval;
 let cards = [];
 let firstCard = null, secondCard = null, lockBoard = false;
 let audioCtx = null;
+let bestScore = parseInt(localStorage.getItem('match-best') || '0');
 
 function showScreen(s) {
   [startScreen, gameScreen, resultScreen].forEach(x => x.classList.remove('active'));
@@ -98,7 +99,7 @@ function flipCard(card) {
 function checkForMatch() {
   const isMatch = firstCard.dataset.name === secondCard.dataset.name;
 
-  if (isMatch) {
+    if (isMatch) {
     const pts = parseInt(firstCard.dataset.points);
     score += pts;
     pairs++;
@@ -109,7 +110,12 @@ function checkForMatch() {
     disableCards();
     
     if (pairs === 6) {
-      setTimeout(endGame, 500); // Win condition
+      // Show win overlay immediately with play again option
+      setTimeout(() => {
+        gameRunning = false;
+        clearInterval(timerInterval);
+        endGame(true);
+      }, 500);
     }
   } else {
     unflipCards();
@@ -159,17 +165,22 @@ function startGame() {
   timerInterval = setInterval(tick, 1000);
 }
 
-function endGame() {
+function endGame(won = false) {
   gameRunning = false;
   clearInterval(timerInterval);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('match-best', bestScore);
+  }
   const stars = pairs === 6 ? '⭐⭐⭐' : pairs >= 3 ? '⭐⭐' : '⭐';
-  const msg = pairs === 6 ? "PERFECT MEMORY! 🏆" : "Keep practicing! 🌟";
+  const msg = won ? "PERFECT MEMORY! 🏆" : pairs === 6 ? "You matched them all! 🎉" : "Keep practicing! 🌟";
   
-  document.getElementById('result-title').textContent = pairs === 6 ? 'You Matched Them All!' : `You found ${pairs} pairs!`;
+  document.getElementById('result-title').textContent = won ? '🎉 You Win!' : `You found ${pairs} pairs!`;
   document.getElementById('result-stars').textContent = stars;
   document.getElementById('result-msg').textContent = msg;
   document.getElementById('stat-score').textContent = score;
   document.getElementById('stat-caught').textContent = pairs;
+  document.getElementById('stat-best').textContent = bestScore;
   
   showScreen(resultScreen);
 }

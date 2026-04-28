@@ -25,6 +25,7 @@ let score, caught, timeLeft, level, gameRunning;
 let pokemons = [], particles = [];
 let lasso = { drawing: false, points: [], closed: false };
 let timerInterval, animFrame;
+let bestScore = parseInt(localStorage.getItem('herding-best') || '0');
 
 // ===== DOM =====
 const startScreen  = document.getElementById('start-screen');
@@ -274,6 +275,10 @@ function startGame() {
 
 function endGame() {
   gameRunning=false; clearInterval(timerInterval); cancelAnimationFrame(animFrame);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('herding-best', bestScore);
+  }
   const stars = caught>=15?'⭐⭐⭐':caught>=8?'⭐⭐':caught>=3?'⭐':'';
   const msg   = caught<3 ? "Draw bigger circles! 💪"
               : caught<8 ? "Nice herding! 🌟"
@@ -284,6 +289,7 @@ function endGame() {
   document.getElementById('result-msg').textContent=msg;
   document.getElementById('stat-score').textContent=score;
   document.getElementById('stat-caught').textContent=caught;
+  document.getElementById('stat-best').textContent=bestScore;
   showScreen(resultScreen);
 }
 

@@ -3,6 +3,9 @@ const POKEMON = [
   { emoji: '⚡', food: '🍎' },
   { emoji: '🔥', food: '🌶' },
   { emoji: '💧', food: '🧊' },
+  { emoji: '🌿', food: '🥬' },
+  { emoji: '🎵', food: '🍬' },
+  { emoji: '😴', food: '🍩' },
 ];
 
 const startScreen  = document.getElementById('start-screen');
@@ -10,21 +13,26 @@ const gameScreen   = document.getElementById('game-screen');
 const resultScreen = document.getElementById('result-screen');
 const scoreEl      = document.getElementById('score');
 const caughtEl     = document.getElementById('caught');
+const wrongEl      = document.getElementById('wrong');
 const timerEl      = document.getElementById('timer');
 const canvas       = document.getElementById('game-canvas');
 const ctx          = canvas.getContext('2d');
 
-let score = 0, fed = 0, timeLeft = 60, gameRunning = false, level = 1;
+let score = 0, fed = 0, wrong = 0, timeLeft = 60, gameRunning = false, level = 1;
 let timerInterval, rafId;
 let foods = [];
 let lastSpawn = 0;
 let audioCtx = null;
+let bestScore = parseInt(localStorage.getItem('feed-best') || '0');
 
 const POKE_SIZE = 60;
 const FOOD_SIZE = 44;
 const POKE_Y_RATIO = 0.85;
 
 let pokemons = [];
+let hungryIdx = 0;
+let hungryTimer = 0;
+const HUNGRY_DURATION = 4000;
 
 function resize() {
   canvas.width  = window.innerWidth;
@@ -63,7 +71,8 @@ function playBeep(freq, type = 'sine', dur = 0.15) {
 }
 
 function spawnFood() {
-  const p = POKEMON[Math.floor(Math.random() * POKEMON.length)];
+  // 60% chance to spawn the hungry pokemon's food, 40% random
+  const p = Math.random() < 0.6 ? POKEMON[hungryIdx] : POKEMON[Math.floor(Math.random() * POKEMON.length)];
   const speed = 80 + level * 20; // px per second
   foods.push({
     emoji: p.food,
@@ -79,6 +88,13 @@ function gameLoop(ts) {
   if (!gameRunning) return;
   const dt = Math.min((ts - lastTime) / 1000, 0.1);
   lastTime = ts;
+
+  // Update hungry pokemon timer
+  hungryTimer += dt * 1000;
+  if (hungryTimer > HUNGRY_DURATION) {
+    hungryTimer = 0;
+    hungryIdx = (hungryIdx + 1) % POKEMON.length;
+  }
 
   // Spawn food
   const spawnInterval = Math.max(600, 1800 - level * 150);
@@ -113,7 +129,7 @@ function draw() {
   ctx.font = `${POKE_SIZE}px serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  pokemons.forEach(p => {
+  pokemons.forEach((p, i) => {
     const scale = p.eating > 0 ? 1.3 : 1.0;
     p.eating = Math.max(0, p.eating - 0.05);
     ctx.save();
@@ -121,6 +137,20 @@ function draw() {
     ctx.scale(scale, scale);
     ctx.fillText(p.emoji, 0, 0);
     ctx.restore();
+    // Hungry indicator
+    if (i === hungryIdx) {
+      ctx.font = '18px Segoe UI, Arial';
+      ctx.fillStyle = '#FFD700';
+      ctx.fillText('😋', p.x, p.y - POKE_SIZE * 0.7);
+      // Hunger bar
+      const barW = 40;
+      const barH = 4;
+      const fill = 1 - (hungryTimer / HUNGRY_DURATION);
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.fillRect(p.x - barW / 2, p.y + POKE_SIZE * 0.5, barW, barH);
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(p.x - barW / 2, p.y + POKE_SIZE * 0.5, barW * fill, barH);
+    }
   });
 
   // Draw falling food
@@ -138,9 +168,10 @@ function handleClick(cx, cy) {
     const dx = cx - f.x;
     const dy = cy - f.y;
     if (Math.sqrt(dx * dx + dy * dy) < FOOD_SIZE) {
-      // Find matching pokemon
+      // Check if this food matches the currently hungry pokemon
+      const isHungryFood = f.matchEmoji === pokemons[hungryIdx].emoji;
       const poke = pokemons.find(p => p.emoji === f.matchEmoji);
-      if (poke) {
+      if (isHungryFood && poke) {
         score += 10;
         fed++;
         level = Math.floor(fed / 10) + 1;
@@ -148,6 +179,13 @@ function handleClick(cx, cy) {
         caughtEl.textContent = fed;
         poke.eating = 1;
         playBeep(500 + fed * 10, 'sine', 0.2);
+      } else {
+        // Wrong food — penalty
+        wrong++;
+        score = Math.max(0, score - 5);
+        scoreEl.textContent = score;
+        wrongEl.textContent = wrong;
+        playBeep(150, 'sawtooth', 0.3);
       }
       foods.splice(i, 1);
       return;
@@ -177,10 +215,13 @@ document.getElementById('start-btn').addEventListener('click', startGame);
 document.getElementById('play-again-btn').addEventListener('click', startGame);
 
 function startGame() {
-  score = 0; fed = 0; timeLeft = 60; level = 1; gameRunning = true;
+  score = 0; fed = 0; wrong = 0; timeLeft = 60; level = 1; gameRunning = true;
+  hungryIdx = 0;
+  hungryTimer = 0;
   timerEl.style.color = '';
   scoreEl.textContent = '0';
   caughtEl.textContent = '0';
+  wrongEl.textContent = '0';
   timerEl.textContent = '60';
   foods = [];
   lastSpawn = 0;
@@ -197,11 +238,18 @@ function endGame() {
   gameRunning = false;
   clearInterval(timerInterval);
   cancelAnimationFrame(rafId);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('feed-best', bestScore);
+  }
   const stars = fed >= 30 ? '⭐⭐⭐' : fed >= 15 ? '⭐⭐' : '⭐';
   document.getElementById('result-title').textContent = `You fed ${fed} Pokemon!`;
   document.getElementById('result-stars').textContent = stars;
   document.getElementById('result-msg').textContent = fed >= 30 ? 'MASTER CHEF! 🏆' : 'Yummy! 🌟';
   document.getElementById('stat-score').textContent = score;
   document.getElementById('stat-caught').textContent = fed;
+  const statWrong = document.getElementById('stat-wrong');
+  if (statWrong) statWrong.textContent = wrong;
+  document.getElementById('stat-best').textContent = bestScore;
   showScreen(resultScreen);
 }

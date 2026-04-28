@@ -22,6 +22,7 @@ let score, caught, timeLeft, level, gameRunning;
 let pokemons = [], particles = [];
 let cursor = { x: -999, y: -999 };
 let timerInterval, animFrame;
+let bestScore = parseInt(localStorage.getItem('chase-best') || '0');
 
 // ===== DOM =====
 const startScreen  = document.getElementById('start-screen');
@@ -152,15 +153,15 @@ function newPokemon() {
 }
 
 // ===== Particles =====
-let particles2 = [];
+let particles = [];
 function spawnParticles(x, y, color) {
   for (let i = 0; i < 8; i++) {
     const a = (Math.PI * 2 / 8) * i;
-    particles2.push({ x, y, vx: Math.cos(a)*3, vy: Math.sin(a)*3, life: 1, color, size: 5 });
+    particles.push({ x, y, vx: Math.cos(a)*3, vy: Math.sin(a)*3, life: 1, color, size: 5 });
   }
 }
 function spawnText(x, y, text) {
-  particles2.push({ type: 'text', x, y, vy: -1.5, life: 1, text, color: '#FFD700' });
+  particles.push({ type: 'text', x, y, vy: -1.5, life: 1, text, color: '#FFD700' });
 }
 
 // ===== Draw =====
@@ -206,12 +207,12 @@ function draw() {
   }
 
   // Particles
-  for (let i = particles2.length - 1; i >= 0; i--) {
-    const p = particles2[i];
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
     p.life -= 0.03;
     
     if (p.life <= 0) {
-      particles2.splice(i, 1);
+      particles.splice(i, 1);
       continue;
     }
 
@@ -269,7 +270,7 @@ document.getElementById('play-again-btn').addEventListener('click', startGame);
 
 function startGame() {
   score = 0; caught = 0; timeLeft = 60; level = 1; gameRunning = true;
-  particles2 = [];
+  particles = [];
   timerEl.style.color = '';
   scoreEl.textContent = caughtEl.textContent = '0';
   timerEl.textContent = '60';
@@ -286,6 +287,10 @@ function endGame() {
   gameRunning = false;
   clearInterval(timerInterval);
   cancelAnimationFrame(animFrame);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('chase-best', bestScore);
+  }
   const stars = caught >= 20 ? '⭐⭐⭐' : caught >= 10 ? '⭐⭐' : caught >= 4 ? '⭐' : '';
   const msg   = caught < 3  ? 'Keep chasing! 💪'
               : caught < 10 ? 'Nice cornering! 🌟'
@@ -296,6 +301,7 @@ function endGame() {
   document.getElementById('result-msg').textContent   = msg;
   document.getElementById('stat-score').textContent   = score;
   document.getElementById('stat-caught').textContent  = caught;
+  document.getElementById('stat-best').textContent    = bestScore;
   showScreen(resultScreen);
 }
 

@@ -26,6 +26,7 @@ let spawnInterval = null;
 let activePokemon = [];
 let caughtSet = new Set();
 let gameRunning = false;
+let bestScore = parseInt(localStorage.getItem('catch-best') || '0');
 
 // ===== DOM refs =====
 const startScreen    = document.getElementById('start-screen');
@@ -270,6 +271,12 @@ function endGame() {
   clearTimeout(spawnInterval);
   timerEl.style.animation = '';
 
+  // Save high score
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('catch-best', bestScore);
+  }
+
   // Build result
   const stars = caught >= 15 ? '⭐⭐⭐' : caught >= 8 ? '⭐⭐' : caught >= 3 ? '⭐' : '';
   const msgs = [
@@ -283,6 +290,11 @@ function endGame() {
   resultTitle.textContent = caught > 0 ? `You caught ${caught} Pokemon!` : `Oh no! None caught!`;
   resultStars.textContent = stars;
   resultMsg.textContent   = msgs;
+
+  // Stats
+  document.getElementById('stat-score').textContent = score;
+  document.getElementById('stat-caught').textContent = caught;
+  document.getElementById('stat-best').textContent = bestScore;
 
   // Pokedex
   caughtList.innerHTML = '';

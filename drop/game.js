@@ -43,6 +43,7 @@ let animFrame = null;
 let spawnTimer = 0;
 let spawnInterval = 120; // frames between spawns
 let keys = {};
+let bestScore = parseInt(localStorage.getItem('drop-best') || '0');
 
 // ===== DOM =====
 const startScreen   = document.getElementById('start-screen');
@@ -327,6 +328,11 @@ function endGame() {
   gameRunning = false;
   cancelAnimationFrame(animFrame);
 
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('drop-best', bestScore);
+  }
+
   const stars = totalCaught >= 20 ? '⭐⭐⭐' : totalCaught >= 10 ? '⭐⭐' : totalCaught >= 4 ? '⭐' : '';
   const msg = totalCaught === 0    ? "Don't give up! Try again! 💪"
             : totalCaught < 5     ? "Good start! Keep practicing! 🌟"
@@ -340,6 +346,7 @@ function endGame() {
   statScore.textContent   = score;
   statCaught.textContent  = totalCaught;
   statMissed.textContent  = totalMissed;
+  document.getElementById('stat-best').textContent = bestScore;
 
   showScreen(resultScreen);
 }

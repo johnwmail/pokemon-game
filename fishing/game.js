@@ -32,6 +32,7 @@ let fishes = [], particles = [];
 let rod = { x: 0, cast: false, lineY: 0, hookY: 0, hooking: false, hookTimer: 0 };
 let timerInterval, animFrame;
 let rodX = 0; // follows mouse/touch on sky
+let bestScore = parseInt(localStorage.getItem('fishing-best') || '0');
 
 // ===== DOM =====
 const startScreen  = document.getElementById('start-screen');
@@ -289,6 +290,10 @@ function startGame() {
 
 function endGame() {
   gameRunning = false; clearInterval(timerInterval); cancelAnimationFrame(animFrame);
+  if (score > bestScore) {
+    bestScore = score;
+    localStorage.setItem('fishing-best', bestScore);
+  }
   const stars = caught >= 15 ? '⭐⭐⭐' : caught >= 8 ? '⭐⭐' : caught >= 3 ? '⭐' : '';
   const msg   = caught < 3  ? "The fish got away! Try again! 🎣"
               : caught < 8  ? "Nice fishing! 🌟"
@@ -299,6 +304,7 @@ function endGame() {
   document.getElementById('result-msg').textContent   = msg;
   document.getElementById('stat-score').textContent   = score;
   document.getElementById('stat-caught').textContent  = caught;
+  document.getElementById('stat-best').textContent    = bestScore;
   showScreen(resultScreen);
 }
 
