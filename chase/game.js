@@ -153,7 +153,6 @@ function newPokemon() {
 }
 
 // ===== Particles =====
-let particles = [];
 function spawnParticles(x, y, color) {
   for (let i = 0; i < 8; i++) {
     const a = (Math.PI * 2 / 8) * i;
