@@ -1,5 +1,7 @@
 @import url('../shared.css');
 
+#lives-box { color: #ff6666; border-color: #ff6666; }
+
 #game-canvas {
   display: block;
   width: 100vw;
